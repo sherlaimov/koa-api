@@ -46,6 +46,7 @@ export default (sequelize, DataTypes) => {
             id: this.id,
             login: this.login,
             email: this.email,
+            isAdmin: this.isAdmin,
           };
         },
       },
@@ -56,9 +57,10 @@ export default (sequelize, DataTypes) => {
           user.password = bcrypt.hashSync(user.password, salt);
         },
         beforeUpdate: user => {
-          // if no incoming changed password
-          const salt = bcrypt.genSaltSync();
-          user.password = bcrypt.hashSync(user.password, salt);
+          if (user.password !== undefined) {
+            const salt = bcrypt.genSaltSync();
+            user.password = bcrypt.hashSync(user.password, salt);
+          }
         },
       },
       instanceMethods: {
@@ -74,8 +76,6 @@ export default (sequelize, DataTypes) => {
         generateHash: password => bcrypt.hashSync(password, bcrypt.genSaltSync(), null),
         validPassword: password => bcrypt.compareSync(password, this.password),
       },
-      // timestamps: false,
-      // tableName: 'user'
     },
   );
 

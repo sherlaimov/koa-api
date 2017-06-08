@@ -3,8 +3,15 @@ const config = {
   rootDir: __dirname,
   debug: true,
   secretKey: process.env.SECRET_KEY || 'mybadasskey',
+  db: {
+    dialect: 'mysql',
+    username: 'root',
+    url: process.env.DATABASE_URL || 'mysql://root:@localhost:3306/test',
+    password: '',
+    host: '127.0.0.1',
+    port: 3000,
+    name: 'test',
+  },
 };
 
-process.env.DATABASE_URL = 'mysql://user:root@localhost:3000/test';
-process.env.SECRET_KEY = 'mybadasskey';
 export default config;

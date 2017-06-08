@@ -1,33 +1,29 @@
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import models from '../models';
+// import { secretKey } from '../config';
+import config from '../config';
+
 
 const auth = {};
 
-auth.auth = async (ctx, next) => {
-  console.log('*** INSIDE AUTH ***');
-  const { user } = ctx;
-  if (user) {
-    const token = jwt.sign(user, process.env.SECRET_KEY, {
-      expiresIn: 400000,
-    });
-    ctx.response.body = { success: true, token };
-  }
-    await next();
-  // if (secretToken) {
-  //   console.log(secretToken);
+function getToken(user) {
+  const token = jwt.sign(user, config.secretKey, {
+    expiresIn: 40000,
+  });
+  return token;
+}
 
-  //   try {
-  //     const decoded = jwt.verify(secretToken, process.env.SECRET_KEY);
-  //     if (decoded) {
-  //       await next();
-  //     }
-  //   } catch (err) {
-  //     ctx.response.body = { error: err.message };
-  //   }
-  // } else {
-  //   // ctx.response.body = { message: 'This route is secure. Please, authorize to get access' };
-  // }
+auth.recoverPass = async (ctx, next) => {
+  const { email } = ctx.request.body;
+  if (email) {
+    await models.User.findOne({ where: { email } }).then(user => {
+      const token = getToken(user.userData);
+      ctx.set('Content-type', 'application/json;utf8');
+      ctx.body = { status: 'success', token };
+    });
+  } else {
+    ctx.response.body = { error: 'User with specified email was not found' };
+  }
 };
 
 export default auth;
